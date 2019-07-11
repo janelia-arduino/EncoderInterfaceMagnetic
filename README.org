@@ -1,0 +1,46 @@
+#+TITLE: EncoderInterfaceMagnetic
+#+AUTHOR: Peter Polidoro
+#+EMAIL: peterpolidoro@gmail.com
+
+* Library Information
+  - Name :: EncoderInterfaceMagnetic
+  - Version :: 1.0.0
+  - License :: BSD
+  - URL :: https://github.com/janelia-arduino/EncoderInterfaceMagnetic
+  - Author :: Peter Polidoro
+  - Email :: peterpolidoro@gmail.com
+
+** Description
+
+   Modular device magnetic encoder interface library.
+
+* API NAMES
+
+  #+BEGIN_SRC js
+  #+END_SRC
+
+* API GENERAL
+
+  [[./api/]]
+
+* Ancestors
+
+  [[https://github.com/janelia-arduino/ModularServer]]
+
+  [[https://github.com/janelia-arduino/ModularDeviceBase]]
+
+* Clients
+
+* Devices
+
+  [[https://github.com/janelia-modular-devices/modular_device_base]]
+
+  [[https://github.com/janelia-modular-devices/encoder_interface_magnetic]]
+
+* More Detailed Modular Device Information
+
+  [[https://github.com/janelia-modular-devices/modular-devices]]
+
+* Installation Instructions
+
+  [[https://github.com/janelia-arduino/arduino-libraries]]
