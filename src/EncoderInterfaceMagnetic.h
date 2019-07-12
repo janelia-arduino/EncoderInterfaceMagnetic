@@ -48,6 +48,7 @@ private:
   modular_server::Callback callbacks_[encoder_interface_magnetic::constants::CALLBACK_COUNT_MAX];
 
   AS5048 encoder_;
+  long angle_previous_;
   long position_;
 
   bool sampling_;

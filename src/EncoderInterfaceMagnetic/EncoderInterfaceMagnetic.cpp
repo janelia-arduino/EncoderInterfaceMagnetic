@@ -23,6 +23,7 @@ void EncoderInterfaceMagnetic::setup()
 
   // Encoder Setup
   encoder_.setup(constants::chip_select_pin);
+  angle_previous_ = encoder_.getAngle();
 
   // event Controller Setup
   event_controller_.setup();
@@ -96,6 +97,23 @@ void EncoderInterfaceMagnetic::setup()
 
 long EncoderInterfaceMagnetic::getPosition()
 {
+  long angle = encoder_.getAngle();
+  Serial << "angle_previous: " << angle_previous_ << "\n";
+  Serial << "angle: " << angle << "\n";
+  long angle_change_a = angle - angle_previous_;
+  long angle_change_b = AS5048::ANGLE_MAX + angle - angle_previous_;
+  long angle_change;
+  if (abs(angle_change_a) < abs(angle_change_b))
+  {
+    angle_change = angle_change_a;
+  }
+  else
+  {
+    angle_change = angle_change_b;
+  }
+  Serial << "angle_change: " << angle_change << "\n";
+  position_ += angle_change;
+  angle_previous_ = angle;
   return position_;
 }
 
