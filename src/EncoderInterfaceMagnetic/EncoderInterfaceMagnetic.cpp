@@ -48,9 +48,14 @@ void EncoderInterfaceMagnetic::setup()
     callbacks_);
 
   // Properties
+  modular_server_.createProperty(constants::invert_encoder_direction_property_name,constants::invert_encoder_direction_default);
+
   modular_server::Property & sample_period_property = modular_server_.createProperty(constants::sample_period_property_name,constants::sample_period_default);
   sample_period_property.setUnits(constants::ms_units);
   sample_period_property.setRange(constants::sample_period_min,constants::sample_period_max);
+
+  modular_server::Property & samples_per_average_property = modular_server_.createProperty(constants::samples_per_average_property_name,constants::samples_per_average_default);
+  samples_per_average_property.setRange(constants::samples_per_average_min,constants::samples_per_average_max);
 
   // Parameters
   modular_server::Parameter & position_parameter = modular_server_.createParameter(constants::position_parameter_name);
@@ -64,6 +69,10 @@ void EncoderInterfaceMagnetic::setup()
   modular_server::Function & set_position_function = modular_server_.createFunction(constants::set_position_function_name);
   set_position_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EncoderInterfaceMagnetic::setPositionHandler));
   set_position_function.addParameter(position_parameter);
+
+  modular_server::Function & get_positions_per_revolution_function = modular_server_.createFunction(constants::get_positions_per_revolution_function_name);
+  get_positions_per_revolution_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EncoderInterfaceMagnetic::getPositionsPerRevolutionHandler));
+  get_positions_per_revolution_function.setResultTypeLong();
 
   modular_server::Function & sampling_function = modular_server_.createFunction(constants::sampling_function_name);
   sampling_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EncoderInterfaceMagnetic::samplingHandler));
@@ -97,12 +106,27 @@ void EncoderInterfaceMagnetic::setup()
 
 long EncoderInterfaceMagnetic::getPosition()
 {
-  long angle = encoder_.getAngle();
-  Serial << "angle_previous: " << angle_previous_ << "\n";
-  Serial << "angle: " << angle << "\n";
-  long angle_change_a = angle - angle_previous_;
-  long angle_change_b = AS5048::ANGLE_MAX + angle - angle_previous_;
+  modular_server::Property & samples_per_average_property = modular_server_.property(constants::samples_per_average_property_name);
+  long samples_per_average;
+  samples_per_average_property.getValue(samples_per_average);
+
+  long angle = 0;
+  for (size_t i=0; i<(size_t)samples_per_average; ++i)
+  {
+    angle += encoder_.getAngle();
+  }
+  angle = angle / samples_per_average;
   long angle_change;
+  long angle_change_a = angle - angle_previous_;
+  long angle_change_b;
+  if (angle < angle_previous_)
+  {
+    angle_change_b = AS5048::ANGLE_MAX + angle - angle_previous_;
+  }
+  else
+  {
+    angle_change_b = angle - AS5048::ANGLE_MAX - angle_previous_;
+  }
   if (abs(angle_change_a) < abs(angle_change_b))
   {
     angle_change = angle_change_a;
@@ -111,7 +135,16 @@ long EncoderInterfaceMagnetic::getPosition()
   {
     angle_change = angle_change_b;
   }
-  Serial << "angle_change: " << angle_change << "\n";
+
+  modular_server::Property & invert_encoder_direction_property = modular_server_.property(constants::invert_encoder_direction_property_name);
+  bool invert_encoder_direction;
+  invert_encoder_direction_property.getValue(invert_encoder_direction);
+
+  if (invert_encoder_direction)
+  {
+    angle_change *= -1;
+  }
+
   position_ += angle_change;
   angle_previous_ = angle;
   return position_;
@@ -122,6 +155,11 @@ void EncoderInterfaceMagnetic::setPosition(long position)
   noInterrupts();
   position_ = position;
   interrupts();
+}
+
+long EncoderInterfaceMagnetic::getPositionsPerRevolution()
+{
+  return AS5048::ANGLE_MAX;
 }
 
 void EncoderInterfaceMagnetic::startSampling()
@@ -197,6 +235,11 @@ void EncoderInterfaceMagnetic::setPositionHandler()
   modular_server_.parameter(constants::position_parameter_name).getValue(position);
 
   setPosition(position);
+}
+
+void EncoderInterfaceMagnetic::getPositionsPerRevolutionHandler()
+{
+  modular_server_.response().returnResult(getPositionsPerRevolution());
 }
 
 void EncoderInterfaceMagnetic::samplingHandler()

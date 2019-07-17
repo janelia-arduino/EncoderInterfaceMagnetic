@@ -31,6 +31,7 @@ public:
 
   long getPosition();
   void setPosition(long position);
+  long getPositionsPerRevolution();
 
   void startSampling();
   void stopSampling();
@@ -62,6 +63,7 @@ private:
   // Handlers
   void getPositionHandler();
   void setPositionHandler();
+  void getPositionsPerRevolutionHandler();
   void samplingHandler();
   void getSamplesHandler();
   void getSampleCountHandler();

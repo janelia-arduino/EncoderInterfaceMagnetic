@@ -19,7 +19,7 @@ namespace constants
 //MAX values must be >= 1, >= created/copied count, < RAM limit
 enum {PIN_COUNT_MAX=1};
 
-enum {SAMPLE_COUNT_MAX=2000};
+enum {SAMPLE_COUNT_MAX=4000};
 
 struct Sample
 {

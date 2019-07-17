@@ -30,12 +30,21 @@ CONSTANT_STRING(hardware_name,"encoder_interface_magnetic");
 
 // Units
 CONSTANT_STRING(ms_units,"ms");
+CONSTANT_STRING(degrees_units,"degrees");
 
 // Properties
+CONSTANT_STRING(invert_encoder_direction_property_name,"invertEncoderDirection");
+const bool invert_encoder_direction_default = true;
+
 CONSTANT_STRING(sample_period_property_name,"samplePeriod");
-const long sample_period_min = 1;
-const long sample_period_max = 10000;
-const long sample_period_default = 10;
+const long sample_period_min = 5;
+const long sample_period_max = 1000;
+const long sample_period_default = 5;
+
+CONSTANT_STRING(samples_per_average_property_name,"samplesPerAverage");
+const long samples_per_average_min = 1;
+const long samples_per_average_max = 100;
+const long samples_per_average_default = 10;
 
 // Parameters
 CONSTANT_STRING(position_parameter_name,"position");
@@ -43,6 +52,7 @@ CONSTANT_STRING(position_parameter_name,"position");
 // Functions
 CONSTANT_STRING(get_position_function_name,"getPosition");
 CONSTANT_STRING(set_position_function_name,"setPosition");
+CONSTANT_STRING(get_positions_per_revolution_function_name,"getPositionsPerRevolution");
 CONSTANT_STRING(sampling_function_name,"sampling");
 CONSTANT_STRING(get_samples_function_name,"getSamples");
 CONSTANT_STRING(get_sample_count_function_name,"getSampleCount");
