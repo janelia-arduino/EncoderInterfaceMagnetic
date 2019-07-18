@@ -49,8 +49,6 @@ private:
   modular_server::Callback callbacks_[encoder_interface_magnetic::constants::CALLBACK_COUNT_MAX];
 
   AS5048 encoder_;
-  long angle_previous_;
-  long position_;
 
   bool sampling_;
 
@@ -61,6 +59,7 @@ private:
     encoder_interface_magnetic::constants::SAMPLE_COUNT_MAX> samples_;
 
   // Handlers
+  void setInvertEncoderDirectionHandler();
   void getPositionHandler();
   void setPositionHandler();
   void getPositionsPerRevolutionHandler();

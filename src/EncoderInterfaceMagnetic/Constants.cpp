@@ -43,8 +43,8 @@ const long sample_period_default = 5;
 
 CONSTANT_STRING(samples_per_average_property_name,"samplesPerAverage");
 const long samples_per_average_min = 1;
-const long samples_per_average_max = 100;
-const long samples_per_average_default = 10;
+const long samples_per_average_max = 64;
+const long samples_per_average_default = 16;
 
 // Parameters
 CONSTANT_STRING(position_parameter_name,"position");

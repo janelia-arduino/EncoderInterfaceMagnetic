@@ -19,11 +19,9 @@ void EncoderInterfaceMagnetic::setup()
   resetWatchdog();
 
   // Variable Setup
-  position_ = 0;
 
   // Encoder Setup
   encoder_.setup(constants::chip_select_pin);
-  angle_previous_ = encoder_.getAngle();
 
   // event Controller Setup
   event_controller_.setup();
@@ -48,7 +46,8 @@ void EncoderInterfaceMagnetic::setup()
     callbacks_);
 
   // Properties
-  modular_server_.createProperty(constants::invert_encoder_direction_property_name,constants::invert_encoder_direction_default);
+  modular_server::Property & invert_encoder_direction_property = modular_server_.createProperty(constants::invert_encoder_direction_property_name,constants::invert_encoder_direction_default);
+  invert_encoder_direction_property.attachPostSetValueFunctor(makeFunctor((Functor0 *)0,*this,&EncoderInterfaceMagnetic::setInvertEncoderDirectionHandler));
 
   modular_server::Property & sample_period_property = modular_server_.createProperty(constants::sample_period_property_name,constants::sample_period_default);
   sample_period_property.setUnits(constants::ms_units);
@@ -102,6 +101,7 @@ void EncoderInterfaceMagnetic::setup()
   modular_server::Callback & clear_samples_callback = modular_server_.createCallback(constants::clear_samples_callback_name);
   clear_samples_callback.attachFunctor(makeFunctor((Functor1<modular_server::Pin *> *)0,*this,&EncoderInterfaceMagnetic::clearSamplesHandler));
 
+  setInvertEncoderDirectionHandler();
 }
 
 long EncoderInterfaceMagnetic::getPosition()
@@ -110,56 +110,17 @@ long EncoderInterfaceMagnetic::getPosition()
   long samples_per_average;
   samples_per_average_property.getValue(samples_per_average);
 
-  long angle = 0;
-  for (size_t i=0; i<(size_t)samples_per_average; ++i)
-  {
-    angle += encoder_.getAngle();
-  }
-  angle = angle / samples_per_average;
-  long angle_change;
-  long angle_change_a = angle - angle_previous_;
-  long angle_change_b;
-  if (angle < angle_previous_)
-  {
-    angle_change_b = AS5048::ANGLE_MAX + angle - angle_previous_;
-  }
-  else
-  {
-    angle_change_b = angle - AS5048::ANGLE_MAX - angle_previous_;
-  }
-  if (abs(angle_change_a) < abs(angle_change_b))
-  {
-    angle_change = angle_change_a;
-  }
-  else
-  {
-    angle_change = angle_change_b;
-  }
-
-  modular_server::Property & invert_encoder_direction_property = modular_server_.property(constants::invert_encoder_direction_property_name);
-  bool invert_encoder_direction;
-  invert_encoder_direction_property.getValue(invert_encoder_direction);
-
-  if (invert_encoder_direction)
-  {
-    angle_change *= -1;
-  }
-
-  position_ += angle_change;
-  angle_previous_ = angle;
-  return position_;
+  return encoder_.getPosition(samples_per_average);
 }
 
 void EncoderInterfaceMagnetic::setPosition(long position)
 {
-  noInterrupts();
-  position_ = position;
-  interrupts();
+  encoder_.setPosition(position);
 }
 
 long EncoderInterfaceMagnetic::getPositionsPerRevolution()
 {
-  return AS5048::ANGLE_MAX;
+  return AS5048::POSITIONS_PER_REVOLUTION;
 }
 
 void EncoderInterfaceMagnetic::startSampling()
@@ -223,6 +184,22 @@ size_t EncoderInterfaceMagnetic::getSampleCountMax()
 // modular_server_.property(property_name).setValue(value) value type must match the property default type
 // modular_server_.property(property_name).getElementValue(element_index,value) value type must match the property array element default type
 // modular_server_.property(property_name).setElementValue(element_index,value) value type must match the property array element default type
+
+void EncoderInterfaceMagnetic::setInvertEncoderDirectionHandler()
+{
+  modular_server::Property & invert_encoder_direction_property = modular_server_.property(constants::invert_encoder_direction_property_name);
+  bool invert_encoder_direction;
+  invert_encoder_direction_property.getValue(invert_encoder_direction);
+
+  if (invert_encoder_direction)
+  {
+    encoder_.setPositionDirectionInverted();
+  }
+  else
+  {
+    encoder_.setPositionDirectionNormal();
+  }
+}
 
 void EncoderInterfaceMagnetic::getPositionHandler()
 {
