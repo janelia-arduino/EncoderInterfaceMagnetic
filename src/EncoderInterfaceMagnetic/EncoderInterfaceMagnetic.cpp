@@ -167,24 +167,6 @@ size_t EncoderInterfaceMagnetic::getSampleCountMax()
   return samples_.max_size();
 }
 
-// Handlers must be non-blocking (avoid 'delay')
-//
-// modular_server_.parameter(parameter_name).getValue(value) value type must be either:
-// fixed-point number (int, long, etc.)
-// floating-point number (float, double)
-// bool
-// const char *
-// ArduinoJson::JsonArray
-// ArduinoJson::JsonObject
-// const ConstantString *
-//
-// For more info read about ArduinoJson parsing https://github.com/janelia-arduino/ArduinoJson
-//
-// modular_server_.property(property_name).getValue(value) value type must match the property default type
-// modular_server_.property(property_name).setValue(value) value type must match the property default type
-// modular_server_.property(property_name).getElementValue(element_index,value) value type must match the property array element default type
-// modular_server_.property(property_name).setElementValue(element_index,value) value type must match the property array element default type
-
 void EncoderInterfaceMagnetic::setInvertEncoderDirectionHandler()
 {
   modular_server::Property & invert_encoder_direction_property = modular_server_.property(constants::invert_encoder_direction_property_name);
